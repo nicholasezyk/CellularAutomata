@@ -1,16 +1,17 @@
 
 public class ConwaysGameofLife {
-	public static void main(String[] args) {
-		final int blockSize = 10;
-		final int sleepInterval = 150;
-		boolean[][] grid = new boolean[Zen.getZenWidth() / blockSize][Zen.getZenHeight() / blockSize];
-		long startTime = System.currentTimeMillis();
-		final long fiveMinutes = 1000*60*5;
-		final int seedFactor = 60;
-		seed(grid, seedFactor);
-		//Zen.flipBuffer();
-		load(grid, blockSize);
-		//Zen.flipBuffer();
+        public static void main(String[] args) {
+        		final int blockSize = 20;
+        		final int sleepInterval = 70;
+        		final int colorOffset = 127;
+                boolean[][] grid = new boolean[Zen.getZenWidth() / blockSize][Zen.getZenHeight() / blockSize];
+                long startTime = System.currentTimeMillis();
+                final long fiveMinutes = 1000*60*5;
+                final int seedFactor = 60;
+                seed(grid, seedFactor);
+                //Zen.flipBuffer();
+                load(grid, blockSize, colorOffset);
+                //Zen.flipBuffer();
                 
      
                 while (Zen.isRunning() && System.currentTimeMillis() - startTime < fiveMinutes)
@@ -26,7 +27,7 @@ public class ConwaysGameofLife {
                 Zen.sleep(sleepInterval);
                 grid = next;
                 //Zen.flipBuffer();
-                load(grid, blockSize);
+                load(grid, blockSize, colorOffset);
                 //Zen.flipBuffer();
                 }
         }
@@ -75,7 +76,7 @@ public class ConwaysGameofLife {
         	else if (neighbors == 3) copy[x][y] = true;
         }
         
-        public static void load(boolean[][] play, int blockSize)
+        public static void load(boolean[][] play, int blockSize, int offset)
         {
         	Zen.flipBuffer();
         	Zen.setColor(0, 0, 0);
@@ -86,6 +87,36 @@ public class ConwaysGameofLife {
         		{
         			if (play[i][j] == true)
         			{
+//        				if (i >= 0 && i < play.length / 6)
+//        				{
+//        					Zen.setColor(255 - offset, offset + ((255 - 2 * offset) * ((i - 0) / play.length / 6)), offset);
+//        					Zen.fillRect(i * blockSize, j * blockSize, blockSize, blockSize);
+//        				}
+//        				else if (i >= play.length / 6 && i < play.length / 3)
+//        				{
+//        					Zen.setColor(offset + (255 - 2 * offset) - ((255 - 2 * offset) * ((i - play.length / 6) / play.length / 6)), 255 - offset, offset);
+//            				Zen.fillRect(i * blockSize, j * blockSize, blockSize, blockSize);
+//        				}
+//        				else if (i >= play.length / 3 && i < play.length / 2)
+//        				{
+//        					Zen.setColor(offset, 255 - offset, offset + ((255 - 2 * offset) * ((i - play.length / 3) / play.length / 6)));
+//            				Zen.fillRect(i * blockSize, j * blockSize, blockSize, blockSize);
+//        				}
+//        				else if (i >= play.length / 2 && i < 2 * play.length / 3)
+//        				{
+//        					Zen.setColor(offset, offset + (255 - 2 * offset) - ((255 - 2 * offset) * ((i - play.length / 2) / play.length / 6)), 255 - offset);
+//            				Zen.fillRect(i * blockSize, j * blockSize, blockSize, blockSize);
+//        				}
+//        				else if (i >= 2 * play.length / 3 && i < 5 * play.length / 6)
+//        				{
+//        					Zen.setColor(offset + ((255 - 2 * offset) * ((i - 0) / 2 * play.length / 3)), offset, 255 - offset);
+//            				Zen.fillRect(i * blockSize, j * blockSize, blockSize, blockSize);
+//        				}
+//        				else
+//        				{
+//        					Zen.setColor(offset + (255 - 2 * offset) - ((255 - 2 * offset) * ((i - 5 * play.length / 6) / play.length / 6)), offset, 255 - offset);
+//            				Zen.fillRect(i * blockSize, j * blockSize, blockSize, blockSize);
+//        				} //bad looking rainbow pattern
         				Zen.setColor(255, 255, 255);
         				Zen.fillRect(i * blockSize, j * blockSize, blockSize, blockSize);
         				Zen.setColor(0,0,0);
@@ -98,7 +129,8 @@ public class ConwaysGameofLife {
 /* @todo:
  * 
  * Figure out how to stop the blinking (happens about 1 in every 10 ticks) without making the whole thing black from too many bufferFlip calls.
- * Make it rainbowy
+ * Make the rainbow pattern better
+ * Encode something to test for stasis followed by wiping and reseeding
  * Maybe animate the births/deaths
  */
 }
