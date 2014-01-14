@@ -1,0 +1,109 @@
+public class LifeWithoutDeath{
+        public static void main(String[] args) {
+        		final int blockSize = 3;
+        		final int sleepInterval = 70;
+        		final int colorOffset = 127;
+                boolean[][] grid = new boolean[Zen.getZenWidth() / blockSize][Zen.getZenHeight() / blockSize];
+                long startTime = System.currentTimeMillis();
+                final long fiveMinutes = 1000*60*5;
+                final int dotFactor = 1; //basis points (1/10000); make this very low
+                final int seedFactor = 60; //percent
+                seed(grid, dotFactor, seedFactor);
+                Zen.flipBuffer();
+                load(grid, blockSize, colorOffset);
+                //Zen.flipBuffer();
+                
+     
+                while (Zen.isRunning() && System.currentTimeMillis() - startTime < fiveMinutes)
+                {
+                	boolean[][] next = new boolean[grid.length][grid[0].length];
+                	for (int i = 0; i < grid.length; i++)
+                	{
+                		for (int j = 0; j < grid[0].length; j++)
+                		{
+                			neighborCheck(grid, next, i, j);
+                		}
+                	}
+                Zen.sleep(sleepInterval);
+                grid = next;
+                //Zen.flipBuffer();
+                load(grid, blockSize, colorOffset);
+                //Zen.flipBuffer();
+                }
+        }
+        
+        public static void seed(boolean[][] play, int dotFactor, int seedFactor)
+        {
+        	
+        	for (int i = 0; i < play.length; i++)
+        	{
+        		for (int j = 0; j < play[0].length; j++)
+        		{
+        			play[i][j] = Math.random() * 10000 < dotFactor ? true : false;
+        		}
+        	}
+//        	int startLeft = (play.length / 2) - 1;
+//        	int startRight = (play.length / 2) + 1;
+//        	int startUp = (play[0].length / 2) - 1;
+//        	int startDown = (play[0].length / 2) + 1;
+//        	for (int i = startLeft; i <= startRight; i++)
+//        	{
+//        		for (int j = startUp; j <= startDown; j++)
+//        		{
+//        			play[i][j] = Math.random() * 100 < seedFactor ? true : false;
+//        		}
+//        	}
+        	int midX = play.length / 2;
+        	int midY = play[0].length/2;
+        	play[midX][midY+1] = play[midX][midY+2] = play[midX+1][midY] = play[midX+1][midY+3] = true;
+        }
+        
+        public static void neighborCheck(boolean[][] play, boolean[][] copy, int x, int y)
+        {
+        	int rBound = play.length - 1;
+        	int dBound = play[0].length - 1;
+        	
+        	int upLeft = (x != 0 && y != 0 && play[x-1][y-1] == true) ? 1 : 0;
+        	int up = (y != 0 && play[x][y-1] == true) ? 1 : 0;
+        	int upRight = (x != rBound && y != 0 && play[x+1][y-1] == true) ? 1 : 0;
+        	int right = (x != rBound && play[x+1][y] == true) ? 1 : 0;
+        	int dnRight = (x < rBound && y < dBound && play[x+1][y+1] == true) ? 1 : 0;
+        	int dn = (y != dBound && play[x][y+1] == true) ? 1 : 0;
+        	int dnLeft = (x != 0 && y != dBound && play[x-1][y+1] == true) ? 1 : 0;
+        	int left = (x != 0 && play[x-1][y] == true) ? 1 : 0;
+        	int neighbors = upLeft + up + upRight + right + dnRight + dn + dnLeft + left;
+        	if (play[x][y] == true)
+        	{
+        		copy[x][y] = true;
+        	}
+        	else if (neighbors == 3) copy[x][y] = true;
+        	else copy[x][y] = false;
+        }
+        
+        public static void load(boolean[][] play, int blockSize, int offset)
+        {
+        	Zen.flipBuffer();
+        	Zen.setColor(0, 51, 99);
+            Zen.fillRect(0, 0, Zen.getZenWidth(), Zen.getZenHeight());
+            for (int i = 0; i < play.length; i++)
+        	{
+        		for (int j = 0; j < play[0].length; j++)
+        		{
+        			if (play[i][j] == true)
+        			{
+        				Zen.setColor(252, 97, 0);
+        				Zen.fillRect(i * blockSize, j * blockSize, blockSize, blockSize);
+        			}
+        		}
+        	}
+            Zen.flipBuffer();
+        }
+        
+/* @todo:
+ * 
+ * Add a refresh function
+ * Write something that allows a string to fill in a small 3x3 grid at the start
+ * Encode something to test for stasis followed by wiping and reseeding
+ * Maybe animate the births/deaths
+ */
+}
